@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> CAR RESALE VALUE PREDICTION</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Open+Sans:400,700");
+
+        :root {
+            --white: #afafaf;
+            --red: #e31b23;
+            --bodyColor: #292a2b;
+            --borderFormEls: hsl(0, 0%, 10%);
+            --bgFormEls: hsl(0, 0%, 14%);
+            --bgFormElsFocus: hsl(0, 7%, 20%);
+        }
+
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+            font-family: inherit;
+            font-size: 100%;
+        }
+
+        button,
+        label {
+            cursor: pointer;
+        }
+
+        select {
+            appearance: none;
+        }
+
+        /* Remove native arrow on IE */
+        select::-ms-expand {
+            display: none;
+        }
+
+        select:-moz-focusring {
+            color: transparent !important;
+            text-shadow: 0 0 0 var(--white);
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        body {
+            font: 18px/1.5 "Open Sans", sans-serif;
+            background: var(--bodyColor);
+            color: var(--white);
+            margin: 1.5rem 0;
+            text-align: center;
+
+        }
+
+        .container {
+
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .my-form h1 {
+            margin-bottom: 1.5rem;
+        }
+
+        .my-form li,
+        .my-form .grid>*:not(:last-child) {
+            margin-bottom: 1.5rem;
+        }
+
+        .my-form select,
+        .my-form input,
+        .my-form textarea,
+        .my-form button {
+            width: 100%;
+            line-height: 1.5;
+            padding: 15px 10px;
+            border: 1px solid var(--borderFormEls);
+            color: var(--white);
+            background: var(--bgFormEls);
+            transition: background-color 0.3s cubic-bezier(0.57, 0.21, 0.69, 1.25),
+                transform 0.3s cubic-bezier(0.57, 0.21, 0.69, 1.25);
+        }
+
+        .my-form ::placeholder {
+            color: inherit;
+            /*Fix opacity issue on Firefox*/
+            opacity: 1;
+        }
+
+        .my-form select:focus,
+        .my-form input:focus,
+        .my-form textarea:focus,
+        .my-form button:enabled:hover,
+        .my-form button:focus,
+        .my-form input[type="checkbox"]:focus+label {
+            background: var(--bgFormElsFocus);
+        }
+
+        .my-form select:focus,
+        .my-form input:focus,
+        .my-form textarea:focus {
+            transform: scale(1.02);
+        }
+
+        .my-form *:required,
+        .my-form select {
+            background-repeat: no-repeat;
+            background-position: center right 12px;
+            background-size: 15px 15px;
+        }
+
+        .my-form *:required {
+            background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/asterisk.svg);
+        }
+
+        .my-form select {
+            background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/down.svg);
+        }
+
+        .my-form *:disabled {
+            cursor: default;
+            filter: blur(2px);
+        }
+
+        .my-form .required-msg {
+            display: none;
+            background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/asterisk.svg) no-repeat center left / 15px 15px;
+            padding-left: 20px;
+        }
+
+        .my-form .btn-grid {
+            position: relative;
+            overflow: hidden;
+            transition: filter 0.2s;
+        }
+
+        .my-form button {
+            font-weight: bold;
+        }
+
+        .my-form button>* {
+            display: inline-block;
+            width: 100%;
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .my-form button .back {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-110%, -50%);
+        }
+
+        .my-form button:enabled:hover .back,
+        .my-form button:focus .back {
+            transform: translate(-50%, -50%);
+        }
+
+        .my-form button:enabled:hover .front,
+        .my-form button:focus .front {
+            transform: translateX(110%);
+        }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <form class="my-form" action="/y_predict" method="post">
+        <div class="container">
+            <h1>Enter Your Car Details to Predict Price</h1>
+            <ul>
+                <li>
+                    <div class="row">
+                        <div class="grid grid-2 col-sm-6">
+                            <input id="regyear" type="text" name="regyear" required
+                                placeholder="Year Of Registration" />
+                        </div>
+                        <div class="grid grid-2 col-sm-6">
+                            <input id="regmonth" type="text" name="regmonth" required
+                                placeholder="Month Of Registration" />
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="row">
+                        <div class="grid grid-2 col-sm-6">
+                            <input id="powerps" type="text" name="powerps" required placeholder="Power of Car in PS" />
+                        </div>
+                        <div class="grid grid-2 col-sm-6">
+                            <input id="kms" type="text" name="kms" required
+                                placeholder="Kilometers the Car has Driven" />
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="row">
+                        <div class="grid grid-2 col-sm-6">
+                            <select id="gearbox" name="gearbox" required>
+                                <option selected disabled> Select Gear Box Type</option>
+                                <option value="manual">Manual</option>
+                                <option value="automatic">Automatic</option>
+                                <option value="not-declared">Not-Declared</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-2 col-sm-6">
+                            <select id="dam" name="dam" required>
+                                <option selected disabled>Your Car is damaged or repaired</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="not-declared">Not-Declared</option>
+                            </select>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="row">
+                        <div class="grid grid-2 col-sm-6">
+                            <select id="modeltype" name="modeltype" required>
+                                <option selected disabled>Model Type</option>
+                                <option value="80">80</option>
+                                <option value="90">90</option>
+                                <option value="100">100</option>
+                                <option value="145">145</option>
+                                <option value="147">147</option>
+                                <option value="156">156</option>
+                                <option value="159">159</option>
+                                <option value="200">200</option>
+                                <option value="500">500</option>
+                                <option value="850">850</option>
+                                <option value="900">900</option>
+                                <option value="911">911</option>
+                                <option value="9000">9000</option>
+                                <option value="1_reihe">1_Reihe</option>
+                                <option value="1er">1Er</option>
+                                <option value="2_reihe">2_Reihe</option>
+                                <option value="3_reihe">3_Reihe</option>
+                                <option value="300c">300C</option>
+                                <option value="3er">3Er</option>
+                                <option value="4_reihe">4_Reihe</option>
+                                <option value="5_reihe">5_Reihe</option>
+                                <option value="5er">5Er</option>
+                                <option value="6_reihe">6_Reihe</option>
+                                <option value="6er">6Er</option>
+                                <option value="7er">7Er</option>
+                                <option value="a_klasse">A_Klasse</option>
+                                <option value="a1">A1</option>
+                                <option value="a2">A2</option>
+                                <option value="a3">A3</option>
+                                <option value="a4">A4</option>
+                                <option value="a5">A5</option>
+                                <option value="a6">A6</option>
+                                <option value="a8">A8</option>
+                                <option value="accord">Accord</option>
+                                <option value="agila">Agila</option>
+                                <option value="alhambra">Alhambra</option>
+                                <option value="almera">Almera</option>
+                                <option value="altea">Altea</option>
+                                <option value="amarok">Amarok</option>
+                                <option value="andere">Andere</option>
+                                <option value="antara">Antara</option>
+                                <option value="arosa">Arosa</option>
+                                <option value="astra">Astra</option>
+                                <option value="auris">Auris</option>
+                                <option value="avensis">Avensis</option>
+                                <option value="aveo">Aveo</option>
+                                <option value="aygo">Aygo</option>
+                                <option value="b_klasse">B_Klasse</option>
+                                <option value="b_max">B_Max</option>
+                                <option value="beetle">Beetle</option>
+                                <option value="berlingo">Berlingo</option>
+                                <option value="bora">Bora</option>
+                                <option value="boxster">Boxster</option>
+                                <option value="bravo">Bravo</option>
+                                <option value="c_klasse">C_Klasse</option>
+                                <option value="c_max">C_Max</option>
+                                <option value="c_reihe">C_Reihe</option>
+                                <option value="c1">C1</option>
+                                <option value="c2">C2</option>
+                                <option value="c3">C3</option>
+                                <option value="c4">C4</option>
+                                <option value="c5">C5</option>
+                                <option value="caddy">Caddy</option>
+                                <option value="calibra">Calibra</option>
+                                <option value="captiva">Captiva</option>
+                                <option value="carisma">Carisma</option>
+                                <option value="carnival">Carnival</option>
+                                <option value="cayenne">Cayenne</option>
+                                <option value="cc">Cc</option>
+                                <option value="ceed">Ceed</option>
+                                <option value="charade">Charade</option>
+                                <option value="cherokee">Cherokee</option>
+                                <option value="citigo">Citigo</option>
+                                <option value="civic">Civic</option>
+                                <option value="cl">Cl</option>
+                                <option value="clio">Clio</option>
+                                <option value="clk">Clk</option>
+                                <option value="clubman">Clubman</option>
+                                <option value="colt">Colt</option>
+                                <option value="combo">Combo</option>
+                                <option value="cooper">Cooper</option>
+                                <option value="cordoba">Cordoba</option>
+                                <option value="corolla">Corolla</option>
+                                <option value="corsa">Corsa</option>
+                                <option value="cr_reihe">Cr_Reihe</option>
+                                <option value="croma">Croma</option>
+                                <option value="crossfire">Crossfire</option>
+                                <option value="cuore">Cuore</option>
+                                <option value="cx_reihe">Cx_Reihe</option>
+                                <option value="defender">Defender</option>
+                                <option value="delta">Delta</option>
+                                <option value="discovery">Discovery</option>
+                                <option value="discovery_sport">Discovery_Sport</option>
+                                <option value="doblo">Doblo</option>
+                                <option value="ducato">Ducato</option>
+                                <option value="duster">Duster</option>
+                                <option value="e_klasse">E_Klasse</option>
+                                <option value="elefantino">Elefantino</option>
+                                <option value="eos">Eos</option>
+                                <option value="escort">Escort</option>
+                                <option value="espace">Espace</option>
+                                <option value="exeo">Exeo</option>
+                                <option value="fabia">Fabia</option>
+                                <option value="fiesta">Fiesta</option>
+                                <option value="focus">Focus</option>
+                                <option value="forester">Forester</option>
+                                <option value="forfour">Forfour</option>
+                                <option value="fortwo">Fortwo</option>
+                                <option value="fox">Fox</option>
+                                <option value="freelander">Freelander</option>
+                                <option value="fusion">Fusion</option>
+                                <option value="g_klasse">G_Klasse</option>
+                                <option value="galant">Galant</option>
+                                <option value="galaxy">Galaxy</option>
+                                <option value="getz">Getz</option>
+                                <option value="gl">Gl</option>
+                                <option value="glk">Glk</option>
+                                <option value="golf">Golf</option>
+                                <option value="grand">Grand</option>
+                                <option value="i_reihe">I_Reihe</option>
+                                <option value="i3">I3</option>
+                                <option value="ibiza">Ibiza</option>
+                                <option value="impreza">Impreza</option>
+                                <option value="insignia">Insignia</option>
+                                <option value="jazz">Jazz</option>
+                                <option value="jetta">Jetta</option>
+                                <option value="jimny">Jimny</option>
+                                <option value="juke">Juke</option>
+                                <option value="justy">Justy</option>
+                                <option value="ka">Ka</option>
+                                <option value="kadett">Kadett</option>
+                                <option value="kaefer">Kaefer</option>
+                                <option value="kalina">Kalina</option>
+                                <option value="kalos">Kalos</option>
+                                <option value="kangoo">Kangoo</option>
+                                <option value="kappa">Kappa</option>
+                                <option value="kuga">Kuga</option>
+                                <option value="laguna">Laguna</option>
+                                <option value="lancer">Lancer</option>
+                                <option value="lanos">Lanos</option>
+                                <option value="legacy">Legacy</option>
+                                <option value="leon">Leon</option>
+                                <option value="lodgy">Lodgy</option>
+                                <option value="logan">Logan</option>
+                                <option value="lupo">Lupo</option>
+                                <option value="lybra">Lybra</option>
+                                <option value="m_klasse">M_Klasse</option>
+                                <option value="m_reihe">M_Reihe</option>
+                                <option value="materia">Materia</option>
+                                <option value="matiz">Matiz</option>
+                                <option value="megane">Megane</option>
+                                <option value="meriva">Meriva</option>
+                                <option value="micra">Micra</option>
+                                <option value="mii">Mii</option>
+                                <option value="modus">Modus</option>
+                                <option value="mondeo">Mondeo</option>
+                                <option value="move">Move</option>
+                                <option value="musa">Musa</option>
+                                <option value="mustang">Mustang</option>
+                                <option value="mx_reihe">Mx_Reihe</option>
+                                <option value="navara">Navara</option>
+                                <option value="niva">Niva</option>
+                                <option value="not-declared">Not-Declared</option>
+                                <option value="note">Note</option>
+                                <option value="nubira">Nubira</option>
+                                <option value="octavia">Octavia</option>
+                                <option value="omega">Omega</option>
+                                <option value="one">One</option>
+                                <option value="outlander">Outlander</option>
+                                <option value="pajero">Pajero</option>
+                                <option value="panda">Panda</option>
+                                <option value="passat">Passat</option>
+                                <option value="phaeton">Phaeton</option>
+                                <option value="picanto">Picanto</option>
+                                <option value="polo">Polo</option>
+                                <option value="primera">Primera</option>
+                                <option value="ptcruiser">Ptcruiser</option>
+                                <option value="punto">Punto</option>
+                                <option value="q3">Q3</option>
+                                <option value="q5">Q5</option>
+                                <option value="q7">Q7</option>
+                                <option value="qashqai">Qashqai</option>
+                                <option value="r19">R19</option>
+                                <option value="range_rover">Range_Rover</option>
+                                <option value="range_rover_evoque">Range_Rover_Evoque</option>
+                                <option value="range_rover_sport">Range_Rover_Sport</option>
+                                <option value="rangerover">Rangerover</option>
+                                <option value="rav">Rav</option>
+                                <option value="rio">Rio</option>
+                                <option value="roadster">Roadster</option>
+                                <option value="roomster">Roomster</option>
+                                <option value="rx_reihe">Rx_Reihe</option>
+                                <option value="s_klasse">S_Klasse</option>
+                                <option value="s_max">S_Max</option>
+                                <option value="s_type">S_Type</option>
+                                <option value="s60">S60</option>
+                                <option value="samara">Samara</option>
+                                <option value="sandero">Sandero</option>
+                                <option value="santa">Santa</option>
+                                <option value="scenic">Scenic</option>
+                                <option value="scirocco">Scirocco</option>
+                                <option value="seicento">Seicento</option>
+                                <option value="serie_2">Serie_2</option>
+                                <option value="serie_3">Serie_3</option>
+                                <option value="sharan">Sharan</option>
+                                <option value="signum">Signum</option>
+                                <option value="sirion">Sirion</option>
+                                <option value="sl">Sl</option>
+                                <option value="slk">Slk</option>
+                                <option value="sorento">Sorento</option>
+                                <option value="spark">Spark</option>
+                                <option value="spider">Spider</option>
+                                <option value="sportage">Sportage</option>
+                                <option value="sprinter">Sprinter</option>
+                                <option value="stilo">Stilo</option>
+                                <option value="superb">Superb</option>
+                                <option value="swift">Swift</option>
+                                <option value="terios">Terios</option>
+                                <option value="tigra">Tigra</option>
+                                <option value="tiguan">Tiguan</option>
+                                <option value="toledo">Toledo</option>
+                                <option value="touareg">Touareg</option>
+                                <option value="touran">Touran</option>
+                                <option value="transit">Transit</option>
+                                <option value="transporter">Transporter</option>
+                                <option value="tt">Tt</option>
+                                <option value="tucson">Tucson</option>
+                                <option value="twingo">Twingo</option>
+                                <option value="up">Up</option>
+                                <option value="v_klasse">V_Klasse</option>
+                                <option value="v40">V40</option>
+                                <option value="v50">V50</option>
+                                <option value="v60">V60</option>
+                                <option value="v70">V70</option>
+                                <option value="vectra">Vectra</option>
+                                <option value="verso">Verso</option>
+                                <option value="viano">Viano</option>
+                                <option value="vito">Vito</option>
+                                <option value="vivaro">Vivaro</option>
+                                <option value="voyager">Voyager</option>
+                                <option value="wrangler">Wrangler</option>
+                                <option value="x_reihe">X_Reihe</option>
+                                <option value="x_trail">X_Trail</option>
+                                <option value="x_type">X_Type</option>
+                                <option value="xc_reihe">Xc_Reihe</option>
+                                <option value="yaris">Yaris</option>
+                                <option value="yeti">Yeti</option>
+                                <option value="ypsilon">Ypsilon</option>
+                                <option value="z_reihe">Z_Reihe</option>
+                                <option value="zafira">Zafira</option>
+
+                            </select>
+                        </div>
+                        <div class="grid grid-2 col-sm-6">
+                            <select id="brand" class="input" name="brand" required>
+                                <option selected disabled>Brand of the Car</option>
+                                <option value="audi">Audi</option>
+                                <option value="alfa_romeo">Alfa_Romeo</option>
+                                <option value="fiat">Fiat</option>
+                                <option value="volvo">Volvo</option>
+                                <option value="saab">Saab</option>
+                                <option value="porsche">Porsche</option>
+                                <option value="mazda">Mazda</option>
+                                <option value="peugeot">Peugeot</option>
+                                <option value="bmw">Bmw</option>
+                                <option value="chrysler">Chrysler</option>
+                                <option value="mercedes_benz">Mercedes_Benz</option>
+                                <option value="honda">Honda</option>
+                                <option value="opel">Opel</option>
+                                <option value="seat">Seat</option>
+                                <option value="nissan">Nissan</option>
+                                <option value="volkswagen">Volkswagen</option>
+                                <option value="hyundai">Hyundai</option>
+                                <option value="mitsubishi">Mitsubishi</option>
+                                <option value="lancia">Lancia</option>
+                                <option value="toyota">Toyota</option>
+                                <option value="renault">Renault</option>
+                                <option value="chevrolet">Chevrolet</option>
+                                <option value="suzuki">Suzuki</option>
+                                <option value="kia">Kia</option>
+                                <option value="citroen">Citroen</option>
+                                <option value="ford">Ford</option>
+                                <option value="jaguar">Jaguar</option>
+                                <option value="skoda">Skoda</option>
+                                <option value="rover">Rover</option>
+                                <option value="smart">Smart</option>
+                                <option value="mini">Mini</option>
+                                <option value="lada">Lada</option>
+                                <option value="daewoo">Daewoo</option>
+                                <option value="jeep">Jeep</option>
+                                <option value="daihatsu">Daihatsu</option>
+                                <option value="subaru">Subaru</option>
+                                <option value="dacia">Dacia</option>
+                                <option value="land_rover">Land_Rover</option>
+                                <option value="trabant">Trabant</option>
+                                <option value="sonstige_autos">Sonstige_Autos</option>
+                            </select>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="row">
+                        <div class="grid grid-2 col-sm-6">
+                            <select id="fuel" class="input" name="fuel" required>
+                                <option selected disabled>Fuel type of the car</option>
+                                <option value="petrol">Petrol</option>
+                                <option value="diesel">Diesel</option>
+                                <option value="lpg">Lpg</option>
+                                <option value="hybrid">Hybrid</option>
+                                <option value="cng">Cng</option>
+                                <option value="electric">Electric</option>
+                                <option value="not-declared">Not-Declared</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-2 col-sm-6">
+                            <select id="vehicletype" class="input" name="vehicletype" required>
+                                <option selected disabled>Vehicle Type</option>
+                                <option value="convertible">Convertible</option>
+                                <option value="limousine">Limousine</option>
+                                <option value="combination">Combination</option>
+                                <option value="coupe">Coupe</option>
+                                <option value="samll car">Samll Car</option>
+                                <option value="bus">Bus</option>
+                                <option value="not-declared">Not-Declared</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <button class="btn-grid" type="submit">Predict The Price</button>
+                </li>
+            </ul>
+        </div>
+    </form>
+</body>
+
+</html>
